@@ -675,6 +675,33 @@ Series.prototype = {
 				}
 
 			});
+			if(series.xAxis.categories) {
+				var catToIndex = series.xAxis._catToIndex;
+				if(!catToIndex) {
+					catToIndex = series.xAxis._catToIndex = {};
+					if(series.xAxis.categories === true) {
+						series.xAxis.categories = [];
+					}
+					for(var i = 0; i <series.xAxis.categories.length;i++) {
+						// add existing to backmapping has
+						catToIndex['i'+series.xAxis.categories[i]] = i;
+					}
+				}
+				var data = series.options.data;
+				for(var i = 0; i < data.length; i++) {
+					var p = data[i];
+					if(p.x || !p.name) {
+						break; // x values explicitly set or names not available
+					}
+					// back mappings prefixed with i to allow numeric values
+					var x = catToIndex['i'+p.name];
+					if(x === undefined) {
+						x = series.xAxis.categories.push(p.name) - 1;
+						catToIndex['i'+p.name] = x;
+					}
+					p.x = x;
+				}
+			}
 		}
 	},
 
